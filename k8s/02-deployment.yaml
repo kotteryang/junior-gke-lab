@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: junior-web
+  namespace: junior
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: junior-web
+  template:
+    metadata:
+      labels:
+        app: junior-web
+    spec:
+      containers:
+      - name: web
+        image: asia-east1-docker.pkg.dev/PROJECT_ID/junior-repo/junior-web:v1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_VERSION
+          value: "v1"
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: junior-web-config
+              key: APP_MESSAGE
+        - name: FEATURE_FLAG
+          valueFrom:
+            configMapKeyRef:
+              name: junior-web-config
+              key: FEATURE_FLAG
+        startupProbe:
+          httpGet: { path: /healthz, port: 8080 }
+          failureThreshold: 30
+          periodSeconds: 2
+        readinessProbe:
+          httpGet: { path: /readyz, port: 8080 }
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet: { path: /healthz, port: 8080 }
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        resources:
+          requests: { cpu: "100m", memory: "128Mi" }
+          limits: { cpu: "300m", memory: "256Mi" }

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: junior-web-config
+  namespace: junior
+data:
+  APP_MESSAGE: "from-configmap"
+  FEATURE_FLAG: "on"
